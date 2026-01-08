@@ -55,10 +55,11 @@ if prompt := st.chat_input("Ask about your PDF..."):
         try:
             # Using the experimental 2.0 flash name which is often more stable for API calls
             response = client.models.generate_content(
-                model="gemini-2.0-flash-exp", 
+                model="gemini-1.5-flash", 
                 contents=full_message
             )
             message_placeholder.markdown(response.text)
             st.session_state.messages.append({"role": "assistant", "content": response.text})
         except Exception as e:
             message_placeholder.error(f"⚠️ API Error: {e}")
+
