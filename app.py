@@ -12,7 +12,7 @@ except:
 genai.configure(api_key=API_KEY)
 
 # --- SETUP MODEL ---
-model_name = "gemini-1.5-flash" 
+model_name = "gemini-2.0-flash" 
 try:
     model = genai.GenerativeModel(model_name)
 except Exception as e:
@@ -64,3 +64,4 @@ if prompt := st.chat_input("Ask about your PDF..."):
         except Exception as e:
 
             message_placeholder.error(f"⚠️ Error: {e}")
+
