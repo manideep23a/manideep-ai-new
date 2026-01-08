@@ -1,17 +1,16 @@
-import streamlit as st  # This MUST be the first line
+import streamlit as st  # <--- THIS MUST BE LINE 1
 from google import genai
 import PyPDF2
 import time
 
 # --- 1. CONFIGURATION & KEY ROTATION ---
 def get_ai_response(full_context):
-    # This matches the names saved in your Streamlit Secrets
+    # This looks for the KEY1, KEY2, and KEY3 you saved in Streamlit Secrets
     all_keys = [st.secrets.get("KEY1"), st.secrets.get("KEY2"), st.secrets.get("KEY3")]
     valid_keys = [k for k in all_keys if k]
 
     for i, key in enumerate(valid_keys):
         try:
-            # Using the modern 2026 'google-genai' library
             client = genai.Client(api_key=key)
             response = client.models.generate_content(
                 model="gemini-2.0-flash", 
@@ -20,10 +19,10 @@ def get_ai_response(full_context):
             return response.text, i + 1
         except Exception as e:
             if "429" in str(e):
-                continue # Try the next key if this one is exhausted
+                continue # Try the next key if this one is blocked
             else:
                 return f"❌ API Error: {e}", None
-    return "🛑 All 3 keys are exhausted. Please wait 1 hour.", None
+    return "🛑 All keys are exhausted. Please wait 1 hour.", None
 
 # --- 2. PAGE SETUP ---
 st.set_page_config(page_title="Manideep's Research AI", layout="wide")
@@ -31,7 +30,6 @@ st.set_page_config(page_title="Manideep's Research AI", layout="wide")
 # --- 3. SIDEBAR ---
 with st.sidebar:
     st.header("📊 System Status")
-    # Check how many keys are actually recognized
     all_keys_check = [st.secrets.get("KEY1"), st.secrets.get("KEY2"), st.secrets.get("KEY3")]
     active_count = len([k for k in all_keys_check if k])
     st.success(f"{active_count} Keys Active")
@@ -44,7 +42,7 @@ with st.sidebar:
     if uploaded_file:
         try:
             reader = PyPDF2.PdfReader(uploaded_file)
-            for page in reader.pages[:50]: # Limit to 50 pages for speed
+            for page in reader.pages[:50]:
                 text = page.extract_text()
                 if text:
                     pdf_text += text
@@ -64,12 +62,10 @@ else:
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Display previous chat messages
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
 
-# User interaction
 if prompt := st.chat_input("What would you like to know?"):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
@@ -78,10 +74,4 @@ if prompt := st.chat_input("What would you like to know?"):
     with st.chat_message("assistant"):
         with st.spinner("🔄 AI is analyzing..."):
             full_prompt = f"Context from PDF:\n{pdf_text}\n\nUser Question: {prompt}" if pdf_text else prompt
-            answer, key_index = get_ai_response(full_prompt)
-            
-            st.markdown(answer)
-            if key_index:
-                st.caption(f"Protected by Key Rotation (Used Key #{key_index})")
-            
-            st.session_state.messages.append({"role": "assistant", "content": answer})
+            answer,
