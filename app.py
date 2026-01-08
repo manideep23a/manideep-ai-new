@@ -13,7 +13,7 @@ def get_ai_response(full_context):
     for i, key in enumerate(valid_keys):
         try:
             genai.configure(api_key=key)
-            model = genai.GenerativeModel("gemini-1.5-flash")
+            model = genai.GenerativeModel("gemini-2.5-flash")
             response = model.generate_content(full_context)
             return response.text, i + 1  # Returns the answer and which key worked
         except Exception as e:
@@ -66,3 +66,4 @@ if prompt := st.chat_input("Ask about your document..."):
             if key_num:
                 st.caption(f"Used Key #{key_num} to bypass limits")
             st.session_state.messages.append({"role": "assistant", "content": answer})
+
