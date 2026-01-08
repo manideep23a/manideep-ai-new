@@ -62,4 +62,5 @@ if prompt := st.chat_input("Ask about your PDF..."):
             message_placeholder.markdown(response.text)
             st.session_state.messages.append({"role": "model", "content": response.text})
         except Exception as e:
+
             message_placeholder.error(f"⚠️ Error: {e}")
